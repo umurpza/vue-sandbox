@@ -4,32 +4,63 @@
     <hr/>
 
     <h2>Math to Speech Text</h2>
+    <p>Edit the Tex Formula to render MathJax and get MathML, or edit MathML to produce English Speech-Text</p>
+
     <div id="math-to-speech-container">
       <h5>Tex Formula</h5>
-      <textarea id="formulaTextarea" v-model="formula" cols="30" rows="5"></textarea>
-      <h5>MathJax Rendering</h5>
+      <textarea id="formulaTextarea" v-model="formula" cols="60" rows="5"></textarea>
+
+      <h5 style="margin-top: 10px;">MathJax Rendering</h5>
       <vue-mathjax :formula="formula"></vue-mathjax>
+
+      <h5 style="margin-top: 10px;">MathML</h5>
+      <textarea id="mathmlTextarea" v-model="mathml" cols="60" rows="5"></textarea>
+
       <br/>
       <h5 style="margin-top: 10px;">English Representation</h5>
       <p id="speechTextEl">{{ speechText }}</p>
     </div>
-<!--    <button id="btn" v-on:click="getSpeechText">Get Speech Text</button>-->
+    <!--    <button id="btn" v-on:click="getSpeechText">Get Speech Text</button>-->
   </div>
 </template>
 
 <script>
+
 function getSpeechText() {
   let speechTextEl = document.getElementById('speechTextEl');
-  let formulaTextarea = document.getElementById('formulaTextarea');
+  // let formulaTextarea = document.getElementById('formulaTextarea');
+  let mathmlTextarea = document.getElementById('mathmlTextarea');
 
-  speechTextEl.textContent = SRE.toSpeech(window.MathJax.tex2mml(formulaTextarea.value));
+  // speechTextEl.textContent = SRE.toSpeech(window.MathJax.tex2mml(formulaTextarea.value));
+  speechTextEl.textContent = SRE.toSpeech(mathmlTextarea.value);
   // console.log("Speech Text: " + speechTextEl.textContent);
 }
 
-window.$(document).ready(function() {
-  SRE.engineReady().then(() => getSpeechText());
+function updateTex() {
+  // let formulaTextarea = document.getElementById('formulaTextarea');
+  // let mathmlTextarea = document.getElementById('mathmlTextarea');
+  // formulaTextarea.value = mml2tex(mathmlTextarea.value);
+}
+
+function updateMathMl() {
+  let formulaTextarea = document.getElementById('formulaTextarea');
+  let mathmlTextarea = document.getElementById('mathmlTextarea');
+  mathmlTextarea.value = window.MathJax.tex2mml(formulaTextarea.value);
+}
+
+window.$(document).ready(function () {
+  SRE.engineReady().then(() => {
+    updateMathMl();
+    getSpeechText();
+  });
 
   window.$('#formulaTextarea').on('input', () => {
+    updateMathMl();
+    getSpeechText();
+  });
+
+  window.$('#mathmlTextarea').on('input', () => {
+    updateTex();
     getSpeechText();
   });
 });
@@ -49,22 +80,14 @@ export default {
     msg: String
   },
 
-  methods: {
-    getSpeechText() {
-      let speechTextEl = document.getElementById('speechTextEl');
-      let formulaTextarea = document.getElementById('formulaTextarea');
-
-      speechTextEl.textContent = SRE.toSpeech(window.MathJax.tex2mml(formulaTextarea.value));
-
-      // console.log("Speech Text: " + speechTextEl.textContent);
-    }
-  },
+  methods: {},
 
   data() {
     return {
       counter: 0,
       speechText: "",
-      formula: '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$'
+      formula: '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$',
+      mathml: ''
     }
   },
 
